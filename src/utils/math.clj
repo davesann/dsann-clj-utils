@@ -1,6 +1,5 @@
-(ns utils.math)
-
-;(load "x/math")
+(ns utils.math
+  (:require [utils.x.math :as xm]))
 
 (defn abs [n]
   (if (neg? n) (- n) n))
@@ -9,6 +8,9 @@
   "Finds the average of the numbers entered"
   [& all]
   (/ (apply + all) (count all)))
+
+(defn square [n]
+  (* n n))
 
 (defn clamp [min-x max-x x]
   (cond 
@@ -21,23 +23,18 @@
     true
     x))
 
-(defn cos [n]
-  (java.lang.Math/cos (double n)))
-  
-(defn sin [n]
-  (java.lang.Math/sin (double n)))
-  
-(defn atan2 [x y]
-  (java.lang.Math/atan2 (double x) (double y)))
-
-(def PI java.lang.Math/PI)
-
 (defn deg->rad [d]
   (* 2 PI (/ d 360)))
 
 (defn rad->deg [r]
   (* 360 (/ r (* 2 PI))))
-          
+
+(defn rms [vector]
+  (sqrt (reduce + (map square vector))))
+  
+(defn euclidian [v1 v2]
+  (rms (map - v2 v1)))
+
 (defn average-angles [& as]
   (let [x (reduce + (map #(cos %) as))
         y (reduce + (map #(sin %) as))]

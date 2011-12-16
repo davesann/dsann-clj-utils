@@ -13,6 +13,7 @@
     ;;(dbg (str "js map: " (js* "JSON.stringify(~{})" out)))
     out))
 
+
 (defn log [x]
   (let [l (if (map? x)
             (make-js-map x)
@@ -20,47 +21,23 @@
     (.log js/console l)
     x))
 
+(defn logm [m x]
+  (do 
+    (log {:msg m :data x})
+    x))
+
+
 (defn log-str [x]
   (.log js/console (print-str x))
   x)
 
-(defn pow [x n]
-  (.pow js/Math x n))
 
-(defn round [x n]
-  (let [m (pow 10 n)] 
-    (/ (.round js/Math (* m x)) m)))
+(defn logm-str [m x]
+  (do 
+    (log-str {:msg m :data x})
+    x))
 
-
-(defn length [string]
-  (.length string))
-
-(defn match [string re]
-  (.match string re))
-
-(defn search [string re]
-  (.search string re))
-
-(defn pow [x n]
-  (.pow js/Math x n))
-
-(defn round [x n]
-  (let [m (pow 10 n)] 
-    (/ (.round js/Math (* m x)) m)))
-
-(defn re-pattern-m [re modifiers]
-  (js/RegExp. re modifiers))
 
 (defn comparator [x]
   (fn->comparator x))
 
-
-(defn ^:export ->keyword [txt]
-  (if (= (nth txt 0) \:)
-    (keyword (drop 1 txt))
-    txt))
-
-
-(defn ^:export to-keyword [s]
-  (keyword s))
-  

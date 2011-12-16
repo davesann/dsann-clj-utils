@@ -17,6 +17,10 @@
     [v]))
 
 
+(defn not-nil? [x]
+  ((complement nil?) x))
+
+
 (defn take-while-reduce [initial reduce-fn pred coll]  
   (when-let [s (seq coll)]
     (let [[f & r] coll

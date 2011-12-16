@@ -1,5 +1,5 @@
 (ns utils.x.core
-  (:refer-clojure :exclude [comparator line-seq])
+  (:refer-clojure :exclude [line-seq])
   (:require
     [clojure.string :as s]
     [clojure.java.io :as io]
@@ -12,26 +12,30 @@
   (:import java.lang.NumberFormatException)
   )
 
-(defn spp [data]
-  (with-out-str (pp/pprint data)))
-
 (def p pp/pprint)
 
-(defn qlog [data]
-  "quick log"
+
+(defn spp [data]
+  (with-out-str (p data)))
+
+(defn log [data] 
   (log/info (spp data))
   data)
 
-(defn log 
-  ([data] 
-    (log/info (spp data))
-    data)
-  ([msg data]
-    (log/info (spp {:msg msg :data data}))
-    data))
+(defn logm [msg data]
+  (log {:msg msg :data data})
+  data)
 
 
-(def comparator clojure.core/comparator)
+(defn log-str [data] 
+  (log/info (print-str data))
+  data)
+
+(defn logm-str [msg data]
+  (log-str {:msg msg :data data})
+  data)
+
+
 
 ;; write files
 (defn write-g [print-f fname data]
@@ -52,7 +56,6 @@
 
 (defn write-json [fname data]
   (write-g json/pprint-json fname data))
-
 
 ;; read files
 (defn line-seq [fname]

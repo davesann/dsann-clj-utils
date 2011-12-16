@@ -9,13 +9,16 @@
 
 ;; NO CLJS
 
-;(defn keyword->title [kw]
-;  (string/capitalize 
-;    (string/join " " (s/split (name kw) #"-"))))
- 
 ;(defn data->pre [data]
 ;  [:pre (with-out-str (pp/pprint data ))])
 
+;;;;
+
+
+(defn keyword->title [kw]
+  (string/capitalize 
+    (string/join " " (s/split (name kw) #"-"))))
+ 
 
 ;; hiccup and enlive conversions
 (defn hiccup-split [ [tag & others] ]

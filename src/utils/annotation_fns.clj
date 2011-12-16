@@ -6,7 +6,6 @@
     )
    )
 
-
 (defn partition->annotations-acc
   [count-fn [p & others] current-idx result]
   (if (nil? p)

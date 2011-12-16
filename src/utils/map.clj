@@ -10,11 +10,10 @@
     (assoc m k v)
     m))
 
-(defn assoc-if-not-nil [m k v]
-  (assoc-if #(not (nil? %)) m k v))
-
-(defn assoc-if-not-empty [m k v]
-  (assoc-if #(not (empty? %)) m k v))
+(defn assoc-if-not [pred m k v]
+  (if (not (pred v))
+    (assoc m k v)
+    m))
 
 (defn select-vals [m & ks]
   (map #(% m) ks))
@@ -40,13 +39,6 @@
         (let [v1 (f v)] 
           (if (remove? v1)  nil  [k v1])))
       a-map)))
-
-;; these don't really shorten anything...
-(defn mapvals-empty [f a-map]
-  (mapvals- empty? f a-map))
-
-(defn mapvals-nil [f a-map]
-  (mapvals- nil? f a-map))
 
 (defn mapkeys [f a-map]
   (into {} 

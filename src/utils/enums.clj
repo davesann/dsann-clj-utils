@@ -1,11 +1,11 @@
 (ns utils.enums)
 
-
-(defn create-enum [a-list]
-  (into {} (map-indexed 
-             (fn [i v]
-               [v {:enum i 
-                   :value v
-                   :text (name keyword) ;(keyword->string v)
-                   }])
-             a-list)))
+(defn create [a-seq]
+  (when-let [s (seq a-seq)]
+    (into {} (map-indexed 
+               (fn [i v]
+                 [v {:enum i 
+                     :value v
+                     :text (name keyword) 
+                     }])
+               s))))
