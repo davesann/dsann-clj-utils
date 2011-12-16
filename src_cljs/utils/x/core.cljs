@@ -20,6 +20,10 @@
     (.log js/console l)
     x))
 
+(defn log-str [x]
+  (.log js/console (print-str x))
+  x)
+
 (defn pow [x n]
   (.pow js/Math x n))
 

@@ -5,8 +5,6 @@
     [pinot.dom :as pdom]
     [goog.dom :as gdom]
     [utils.x.core :as u]
-    
-    
     ))
 
 

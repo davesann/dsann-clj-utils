@@ -1,6 +1,6 @@
 (ns utils.math)
 
-(load "x/math")
+;(load "x/math")
 
 (defn abs [n]
   (if (neg? n) (- n) n))

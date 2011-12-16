@@ -1,5 +1,5 @@
 (ns utils.dictionary.lookup
-  (require
+  (:require
     [utils.x.core :as u]
     [utils.map :as umap]
     [utils.seq :as useq]

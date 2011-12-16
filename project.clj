@@ -18,6 +18,9 @@
                      [org.clojure/data.json "0.1.1"]
                      
                      [seesaw "1.1.0"]
+                     
+                     [pinot "0.1.1-SNAPSHOT"]
+                 
                       
                      ]
   :dev-dependencies [[lein-eclipse "1.0.0"]]
