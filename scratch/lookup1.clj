@@ -79,7 +79,7 @@
         [defs usages] (split-with  #(not (= \" (first %))) splits)
         ]
    {:defs defs
-    :usage (map #(ustr/slice % 1 -1) usages)
+    :usage (map #(ustr/slice 1 -1 %) usages)
     }))
                         
 (defn extract-synsets-from-text [text]
@@ -106,6 +106,6 @@
   )
 
 (pp/pprint
-(take 100 (filter #(useq/in "bad" (:synset %)) (extract-definitions xml-data))
+(take 100 (filter #(useq/in (:synset %) "bad" ) (extract-definitions xml-data))
   ))
 

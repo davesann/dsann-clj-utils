@@ -13,16 +13,23 @@
   )
 
 (defn spp [data]
-  (with-out-str (pp/pprint data))
-  data)
+  (with-out-str (pp/pprint data)))
+
+(def p pp/pprint)
 
 (defn qlog [data]
   "quick log"
   (log/info (spp data))
   data)
 
-(defn log [data]
-  (qlog data))
+(defn log 
+  ([data] 
+    (log/info (spp data))
+    data)
+  ([msg data]
+    (log/info (spp {:msg msg :data data}))
+    data))
+
 
 (def comparator clojure.core/comparator)
 

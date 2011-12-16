@@ -1,10 +1,15 @@
 (ns utils.x.dom.events
   (:require
+    [clojure.string :as s]
+    
     [pinot.dom    :as pdom]
     [pinot.events :as pe]
-    [goog.events :as gevents]
+    [pinot.util.clj :as pclj]
+    [pinot.util.js :as pjs]
     
-    [utils.x.core :as u]
+    [goog.events :as gevents]
+
+    [utils.x.core  :as u]
     )
   ) 
 
@@ -28,6 +33,22 @@
   (doseq [ id listener-ids ] 
     (gevents/unlistenByKey id)))
 
+
+;; modified from pinot events 
+(defn on [elem event func]
+  (let [ev-name (s/upper-case (name event))
+        event (aget gevents/EventType ev-name)
+        body-elem (pe/get-body)]
+    (doall (map
+             (fn [el]
+               (let [parsed (pe/->target el)]
+                 (gevents/listen body-elem
+                                 event
+                                 (pe/make-listener func parsed))))
+             (pclj/->coll elem)))
+    ))
+
+
 (defn on-l [elems event-type listener-handler]
   "adds a handler that receives the
     element  
@@ -37,7 +58,7 @@
                  (let [listener-ids (atom nil)
                        h (fn [elem event]
                            (listener-handler elem event @listener-ids))
-                       ids  (pe/on e event-type h)
+                       ids  (on e event-type h)
                        ]
                    (reset! listener-ids ids)))
         ]
@@ -59,3 +80,4 @@
               (remove-listeners listener-ids)
               (swap! c inc))
             (handler elem event)))))
+

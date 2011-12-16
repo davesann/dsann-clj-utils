@@ -1,7 +1,7 @@
 (ns utils.dictionary.lookup
   (require
     [utils.x.core :as u]
-    [utils.map :as um]
+    [utils.map :as umap]
     [utils.seq :as useq]
     [utils.unicode :as uu]
     [clojure.string :as s]
@@ -12,10 +12,21 @@
   (if (empty? key-seq)
     lookup-dict
     (let [path (concat key-seq [:-value-])
-          new-value (if-let [old-value (um/hget lookup-dict path)]
-                      (conj old-value value)
+          new-value (if-let [value-list (umap/hget lookup-dict path)]
+                      (if (useq/not-in value value-list)
+                        (conj value-list value)
+                        value-list)
                       [value])
-          new-dict (um/hput lookup-dict path new-value)          
+          new-dict (umap/hput lookup-dict path new-value)          
+          ]
+      (recur new-dict others))))
+
+
+(defn add-unique [lookup-dict [key-seq value & others]]
+  (if (empty? key-seq)
+    lookup-dict
+    (let [path (concat key-seq [:-value-])
+          new-dict (umap/hput lookup-dict path value)          
           ]
       (recur new-dict others))))
 
@@ -35,41 +46,37 @@
           ))
       )))
 
+
+
+
+
+
 (defn all-matches 
-  ([dict key-seq] 
-    (all-matches dict key-seq 0 []))
+  ([lookup-fn key-seq] 
+    (all-matches lookup-fn key-seq 0 []))
   
-  ([dict key-seq idx results]
+  ([lookup-fn key-seq idx results]
     (if (empty? key-seq)
       results
-      (let [new-results (let [found (lookup dict key-seq)]
+      (let [new-results (let [found (lookup-fn key-seq)]
                           (if (empty? found)
                             results
                             (conj results [idx found])))
             ]
-        (recur dict (rest key-seq) (inc idx) new-results)))))
-
-(defn process [lookup-dict phrase]
-  (let [matches (all-matches lookup-dict (uu/grapheme-split phrase))]
-    (sort-by (fn [[idx _]] idx)
-      (um/mapvals (fn [m] (um/mapvals 
-                            #(set (apply concat (map :defs %)))  ; select only definitions
-                            m))
-        matches
-      )
-    ))
-)
+        (recur lookup-fn (rest key-seq) (inc idx) new-results)))))
 
 (defn idx-pair-compare [[idx1  _]
                        [idx2  _]]
-  (useq/r-compare idx1 idx2 
+  (useq/r-compare 
     [first
-     #(* -1 (second %))]))
-          
-                    
+     #(* -1 (second %))]
+    idx1 idx2 
+    ))
 
-(defn process-more 
-  ([processed] (process-more processed []))
+
+
+(defn process-matches 
+  ([processed] (process-matches processed []))
   ([[[idx found] & remainder] results]
     (if (nil? idx) 
       (sort idx-pair-compare results)
@@ -81,40 +88,23 @@
                                            :end-idx e
                                            :len l 
                                            :match k 
-                                           :defs v}]))
+                                           :lookups v}]))
                           found)
             n-results  (concat results sub-results)
             ]
         (recur remainder n-results)))))
 
-(defn partition-overlap 
-  "creates a list of lists of no overlapping words. Longest words go first"
-  ([indexed-seq]
-    (partition-overlap indexed-seq [] [] []))
-  ([indexed-seq held iresult fresult]
-    (if (empty? indexed-seq)
-      (if (empty? held)
-        fresult
-        (recur held [] [] (conj fresult iresult)))
-      (let [[item & remainder] indexed-seq
-            [[s e] v] item
-            [n-held new-indexed-seq] (split-with (fn [[[s1 _] _]] (> e s1)) remainder)
-            ]
-        (recur new-indexed-seq (concat held n-held) (conj iresult v) fresult)
-        ))))
-              
-(defn phrase->word-table [lookup-dict phrase]
-  (partition-overlap (process-more (process lookup-dict phrase))))
+
+(defn process [lookup-fn phrase]
+  (let [matches (all-matches lookup-fn phrase)]
+    (process-matches matches)))
+
+                       
+(defn phrase->word-table [lookup-fn phrase]
+  (useq/tabulate-overlap (process lookup-fn phrase)))
 
 
 
-
-(defn load-thai-dict []
-  (let [data (read-string (slurp  "/home/dave/work/data/dictionaries/th/telex.2.cljdat"))]
-    (reduce (fn [d entry]
-              (add d [(uu/grapheme-split (:tsearch entry)) entry]))
-      {}
-      data)))
 
 (defn load-jp-dict []
   (let [data (read-string (slurp "/home/dave/work/data/dictionaries/jp/edict.cljdat"))]
@@ -125,18 +115,6 @@
       {}
       data)))
 
-
-(defn load-cn-dict []
-  (let [data (read-string (slurp "/home/dave/work/data/dictionaries/cn/cedict.cljdat"))]
-    (reduce (fn [d entry]
-              (-> d
-                (add [(uu/grapheme-split (:trad entry)) entry])
-                (add [(uu/grapheme-split (:simp entry)) entry])
-                (add [(s/split (:pinyin entry) #"\s+") entry])
-                ))
-      {}
-      data)))
-                  
 
 
 
@@ -155,17 +133,20 @@
   '[utils.dictionary.lookup :as udl]
   '[clojure.pprint :as pp]
   '[utils.unicode :as uu]
-  
+  '[utils.x.core :as u]
+  '[utils.seq :as useq]
+  '[utils.x.swingdraw :as d]
   :reload)
+
+(require '[utils.dictionary.jp :as jp] :reload)
 
 (def p pp/pprint)
 
-(if (not (find (ns-interns *ns*) 'jp-dict))
-  (def jp-dict (udl/load-jp-dict)))
+
+;(def jp-dict (udl/load-jp-dict))
   
 
-(if (not (find (ns-interns *ns*) 'cn-dict))
-  (def cn-dict (udl/load-cn-dict)))
+(def cn-dict (udl/load-cn-dict))
   
 
 (def jp-txt "東日本大震災により、関東の超高層マンションの高層階では７割以上の住居でタンスや冷蔵庫、食器棚が転倒や移動したことが、東京理科大の調査でわかった。首都直下地震などでは、さらに大きな揺れが想定され、家具の固定などの対策が必要だとしている。")
@@ -174,9 +155,28 @@
 (def jp-txt  "東日本大震災により")
 
 (def cn-txt "人民网北京11月10日电 （记者 王欲然）据河北卫视消息，本月6日，河北唐山滦南司各庄1名儿童在食用路边捡到的零食后身亡")
+(def cn-txt "曹冲称象")
+(defn cn-lookup [txt]
+  (udl/lookup cn-dict  txt))
 
-(p (udl/lookup cn-dict (uu/grapheme-split cn-txt)))
-(p (udl/process-more (udl/process cn-dict cn-txt)))
+(p (udl/lookup cn-dict (seq cn-txt)))
+(p (cn-lookup (seq cn-txt)))
+
+(d/draw (take 5 cn-dict))
+
+(d/draw (udl/all-matches cn-lookup (uu/grapheme-split cn-txt)))
+
+(d/draw (udl/process-matches (udl/all-matches cn-lookup cn-txt)))
+
+(d/draw (useq/tabulate-overlap (udl/process cn-lookup cn-txt)))
+
+
+(d/draw (udl/phrase->word-table cn-lookup cn-txt))
+
+
+
+(d/draw (udl/phrase->word-table jp/lookup-txt (seq jp-txt)))
+
 
 (def r
   (hc/html

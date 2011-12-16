@@ -20,30 +20,33 @@
 (defn right-button? [event]
   (= 2 (.button event)))
 
+(defn empty-range? [rng]
+  (. rng (isCollapsed)))
 
-(defn empty-range? [range]
-  (. range (isCollapsed)))
-
-(defn text [range]
-  (. range (getText)))
+(defn text [rng]
+  (. rng (getText)))
 
 (defn no-space? [txt]
   (= -1 (. txt (indexOf " "))))
 
-(defn on-text-select [elements f]
-  (let [elements (or elements [(getbody)])]
-    (udom/on-each [elements]
-                  :mouseup
-                  (fn [e evt] 
-                    (let [r (grange/createFromWindow)]
-                      (if-not (empty-range? r)
-                        (f e evt r)))))))
+(defn range-start [rng]
+  (. rng (getStartOffset)))
 
-(defn range->range-iterator [range]
-  (let [start-offset (. range (getStartOffset))
-        start-node   (. range (getStartNode))
-        end-offset   (. range (getEndOffset))
-        end-node     (. range (getEndNode))]
+(defn range-end [rng]
+  (. rng (getEndOffset)))
+
+(defn range-start-node [rng]
+  (. rng (getStartNode)))
+
+(defn range-end-node [rng]
+  (. rng (getEndNode)))
+
+
+(defn range->range-iterator [rng]
+  (let [start-offset (. rng (getStartOffset))
+        start-node   (. rng (getStartNode))
+        end-offset   (. rng (getEndOffset))
+        end-node     (. rng (getEndNode))]
     (goog.dom.TextRangeIterator. start-node start-offset 
                                  end-node end-offset)))
 

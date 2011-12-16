@@ -1,6 +1,6 @@
 (defproject dsann/utils "1.0.0-SNAPSHOT"
   :description "FIXME: write description"
- :omit-default-repositories true
+  :omit-default-repositories true
   :repositories {"releases"  "http://artifactory/artifactory/libs-release"
                  "snapshots" "http://artifactory/artifactory/libs-snapshot"}
                  
@@ -21,5 +21,7 @@
                       
                      ]
   :dev-dependencies [[lein-eclipse "1.0.0"]]
+  
+  :jvm-opts ["-DentityExpansionLimit=10000000"]
 )
 

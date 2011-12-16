@@ -63,6 +63,8 @@
 
 
 
+(defn get-text [node]
+  (gdom/getTextContent node))
 
 
 

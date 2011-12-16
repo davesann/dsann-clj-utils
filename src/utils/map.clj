@@ -1,8 +1,20 @@
 (ns utils.map
   (:require 
     [clojure.string :as string]
+    [utils.seq :as useq]
     )
   )
+
+(defn assoc-if [pred m k v]
+  (if (pred v)
+    (assoc m k v)
+    m))
+
+(defn assoc-if-not-nil [m k v]
+  (assoc-if #(not (nil? %)) m k v))
+
+(defn assoc-if-not-empty [m k v]
+  (assoc-if #(not (empty? %)) m k v))
 
 (defn select-vals [m & ks]
   (map #(% m) ks))
@@ -15,10 +27,26 @@
         [k2 v2]))
     m))
 
+
 (defn mapvals [f a-map]
   (into {} 
         (map (fn [[k v]] [k (f v)])
          a-map)))
+
+(defn mapvals- [remove? f a-map]
+  (into {} 
+    (useq/map- nil? 
+      (fn [[k v]] 
+        (let [v1 (f v)] 
+          (if (remove? v1)  nil  [k v1])))
+      a-map)))
+
+;; these don't really shorten anything...
+(defn mapvals-empty [f a-map]
+  (mapvals- empty? f a-map))
+
+(defn mapvals-nil [f a-map]
+  (mapvals- nil? f a-map))
 
 (defn mapkeys [f a-map]
   (into {} 
@@ -61,6 +89,13 @@
                  [k v]))
              a-map)))
 
+(defn apply-to-vals [f m]
+  (mapvals #(apply f %) m))
+
+(defn concat-vals [m]
+  (apply-to-vals concat m))
+
+
 (defn select-find [re a-map]
   (into {}
         (filter (fn [[k v]] (re-find re (name k))) a-map)))
@@ -81,6 +116,17 @@
 
 (defn sort-by-kvs [f m]
   (sort-by (fn [[k v]] (f k v)) m))
+
+(defn merge-as-list [& maps]
+  "merges a list of maps (or a list of lists of key value pairs)
+   where all the values are merged to a list.
+
+(merge-as-list {:a 1 :b 2} {:a 2 :b [3]} {:c 2})
+=> {:a (1 2), :b (2 [3]), :c (2)}
+"
+  (mapvals #(map second %) 
+    (group-by first 
+      (apply concat (map seq maps)))))
 
 ; HMAP - heirarchical maps get and put
 ; ------------------------------------
