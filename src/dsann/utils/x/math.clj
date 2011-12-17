@@ -1,8 +1,4 @@
-(ns utils.x.math
-  (:require 
-    [utils.x.core :as u]
-    )
-  )
+(ns dsann.utils.x.math)
 
 (defn cos [n]
   (java.lang.Math/cos (double n)))

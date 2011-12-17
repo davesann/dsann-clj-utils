@@ -1,6 +1,6 @@
-(ns utils.seq
+(ns dsann.utils.seq
   (:require 
-    [utils.x.core :as u]
+    [dsann.utils.x.core :as u]
     )
   )
 

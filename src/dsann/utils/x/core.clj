@@ -1,4 +1,4 @@
-(ns utils.x.core
+(ns dsann.utils.x.core
   (:refer-clojure :exclude [line-seq])
   (:require
     [clojure.string :as s]

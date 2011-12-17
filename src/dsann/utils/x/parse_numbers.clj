@@ -1,4 +1,4 @@
-(ns utils.x.parse-numbers)
+(ns dsann.utils.x.parse-numbers)
 
 (defn parse-integer [string & opts]
   (let [{:keys [radix junk-allowed],

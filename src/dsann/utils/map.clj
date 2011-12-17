@@ -1,7 +1,7 @@
-(ns utils.map
+(ns dsann.utils.map
   (:require 
     [clojure.string :as string]
-    [utils.seq :as useq]
+    [dsann.utils.seq :as useq]
     )
   )
 

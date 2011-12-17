@@ -1,5 +1,5 @@
-(ns utils.math
-  (:require [utils.x.math :as xm]))
+(ns dsann.utils.math
+  (:require [dsann.utils.x.math :as xm]))
 
 (defn abs [n]
   (if (neg? n) (- n) n))

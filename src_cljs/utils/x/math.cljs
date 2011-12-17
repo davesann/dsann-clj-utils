@@ -1,4 +1,4 @@
-(ns utils.x.math)
+(ns dsann.utils.x.math)
 
 (defn cos [n]
   (. js/Math (cos n)))

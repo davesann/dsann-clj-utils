@@ -1,4 +1,4 @@
-(ns utils.x.core)
+(ns dsann.utils.x.core)
 
 (defn make-js-map
   "makes a javascript map from a clojure one"

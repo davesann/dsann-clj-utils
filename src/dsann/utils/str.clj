@@ -1,4 +1,4 @@
-(ns utils.str
+(ns dsann.utils.str
   (:require [clojure.string :as s])
   )
 

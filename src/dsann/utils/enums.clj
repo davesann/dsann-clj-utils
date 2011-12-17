@@ -1,4 +1,4 @@
-(ns utils.enums)
+(ns dsann.utils.enums)
 
 (defn create [a-seq]
   (when-let [s (seq a-seq)]
