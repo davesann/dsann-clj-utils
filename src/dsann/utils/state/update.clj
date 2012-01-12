@@ -1,4 +1,7 @@
-(ns dsann.utils.state.update
+(ns 
+  ^{:doc "Update functions that provide information on where data changed
+          within an update. the info is supplied as metatdata on the result."}
+  dsann.utils.state.update
   (:require 
     [dsann.utils.x.core :as u]
     
@@ -8,77 +11,19 @@
     )
   )
 
+;; TODO: document and tidy
+
+
 ;; bind *actor* if you want to flag who did the update.
 (def ^:dynamic *actor* ::unspecified)
-      
-(defn update-in! [an-atom ks f & args]
-  (let [alter-fn
-        (fn [state]
-          (with-meta
-            (apply (partial update-in state ks f) args)
-            {:update-path ks
-             :action :update
-             :update-by *actor*
-             }))]         
-    (swap! an-atom alter-fn)))
 
-;; apply this for modified lists
-
-(defn update-in2! [an-atom ks f & args]
-  (let [alter-fn
-        (fn [state]
-          (let [v (get-in state ks)
-                p (if (sequential? v)
-                    (umap/mapvals second
-                                  (group-by first (map-indexed (fn [i x] [x i]) v))))
-                r (f v)
-                updates (if p
-                          (map (fn [x] (p x)) r))
-                ]
-            (with-meta
-              (apply (partial update-in state ks f) args)
-              {:update-path ks
-               :action :update
-               :seq-updates updates
-               :update-by *actor*
-               })))]         
-  (swap! an-atom alter-fn)))
+;; internal utils
 
 (defn differs-in? [m path v]
   (not (= (get-in m path) v)))
 
-(defn swap-assoc-in [state ks v]
-  (with-meta
-    (assoc-in state ks v)
-    {:update-path ks
-     :action :set
-     :update-by *actor*
-     })) 
-
-(defn swap-assoc-in? [state ks v]
-  (if(differs-in? state ks v)
-    (swap-assoc-in state ks v)
-    state))
-
-(defn assoc-in! [an-atom ks v]
-  (swap! an-atom swap-assoc-in ks v))
-
-(defn assoc-in?! [an-atom ks v]
-  (when (differs-in? @an-atom ks v)
-    (swap! an-atom swap-assoc-in ks v)))
-
-(defn swap-dissoc-in [state ks]
-  (with-meta
-    (umap/dissoc-in state ks)
-    {:update-path ks
-     :action :dissoc
-     :update-by *actor*
-     }))         
-
-(defn dissoc-in! [an-atom ks]
-  (swap! an-atom swap-dissoc-in ks))
-
 (defn filter-i
+  "filter by pred? - reporting indices removed"
   ([pred? coll] (filter-i pred? coll 0 [] []))
   ([pred? coll idx removed result]
     (if-let [s (seq coll)]
@@ -91,17 +36,49 @@
       )))
 
 (defn remove-i [pred? coll]
+  "filter by pred? - reporting indices removed"
   (filter-i (complement pred?) coll))
 
-
-;; note not returning actual removed - but the full index set
 (defn remove-by-index-i [index-set a-seq]
+  "remove by index-set - reporting indices removed
+     note not returning actual removed - but the full index set"
   {:result (useq/remove-by-index index-set a-seq)
    :removed-indices index-set})
 
 (defn filter-by-index-i [index-set a-seq]
+  "remove by index-set - reporting indices removed
+     note not returning actual removed - but the full index set"
   {:result (useq/filter-by-index index-set a-seq)
    :removed-indices index-set})
+
+
+;; swap fns
+;; You can see what meta is added here
+
+(defn swap-update-in
+  [state ks f args]
+  (with-meta
+    (apply (partial update-in state ks f) args)
+    {:update-path ks
+     :action :update
+     :update-by *actor*
+     }))
+
+(defn swap-assoc-in [state ks v]
+  (with-meta
+    (assoc-in state ks v)
+    {:update-path ks
+     :action :set
+     :update-by *actor*
+     })) 
+
+(defn swap-dissoc-in [state ks]
+  (with-meta
+    (umap/dissoc-in state ks)
+    {:update-path ks
+     :action :dissoc
+     :update-by *actor*
+     }))         
 
 (defn swap-remove-in [state ks remove-fn pred?]
   (let [l (get-in state ks)
@@ -123,6 +100,30 @@
        :update-by *actor*})))
 
 
+
+;; update functions
+;;  call these
+
+(defn update-in! [an-atom ks f & args]
+  "Update-in atom adding meta 
+    {:update-path ks
+     :action update
+     :update-by *actor*}"
+    (swap! an-atom swap-update-in ks f args))
+
+(defn assoc-in! [an-atom ks v]
+  "update atom with (assoc-in @v ks v)"
+  (swap! an-atom swap-assoc-in ks v))
+
+(defn assoc-in?! [an-atom ks v]
+  "update atom with (assoc-in @v ks v) but only if values differ"  
+  ;; have to do this outside to prevent triggering watchers
+  (when (differs-in? @an-atom ks v)
+    (swap! an-atom swap-assoc-in ks v)))
+
+(defn dissoc-in! [an-atom ks]
+  (swap! an-atom swap-dissoc-in ks))
+
 (defn remove-in! [an-atom ks pred?]
   (swap! an-atom swap-remove-in ks remove-i pred?))
 
@@ -137,66 +138,3 @@
 
 (defn append-in! [an-atom ks & values]
   (swap! an-atom swap-append-in ks values))
-
-
-; for reset use reset!
-; if there is no meta data on change - assume the entire structure has updated
-
-
-
-
-
-
-
-(defn index-map 
-  "maps items to their index"
-  ([a-seq] (index-map a-seq 0 {}))
-  ([[i & r] idx result]
-    (if (nil? i)
-      (umap/mapvals reverse result)
-      (let [new-result (update-in 
-                         result [i] 
-                         #(if (nil? %) (list idx) (cons idx %)))]
-        (recur r (inc idx) new-result)))))
-  
-(defn map-moves-
-  [coll idx imap result]
-  (if (not (seq coll))
-    {:new-list-changes result
-     :old-list-deletes (mapcat second imap)}
-    (let [[item & r] coll]
-      (if-let [indexes (get imap item)]
-        (let [[i & rindexes] indexes
-              result (assoc result idx [(if (= i idx) :unchanged :move) i])
-              imap   (assoc imap item rindexes)
-              ]
-          (recur r (inc idx) imap result))
-        (let [result (assoc result idx [:insert item])]
-          (recur r (inc idx) imap result))))))
-  
-(defn map-moves 
-  "calculate the changes to get form seq1 to seq2"
-  ([seq1 seq2] 
-    (let [imap (index-map seq1)]
-      (map-moves- seq2 0 imap {}))))
-
-
-(comment
-  (su/map-moves [ :A :B :C] [:C :D :A :F])
-  (su/map-moves [:C :D :A :F] [ :A :B :C] )
-
-(map-moves [1 2 3] [3 2 1])
-
-(def l1
-  (for [i (range 10000)]
-    (rand-int 20)))
-
-(def l2
-  (for [i (range 10000)]
-    (rand-int 20)))
-
-(def moves (time (map-moves l1 l2)))
-)
-
-
-

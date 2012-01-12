@@ -27,7 +27,7 @@
     (useq/map- nil? 
       (fn [[k v]] 
         (let [v1 (f v)] 
-          (if-noe (remove? v1) [k v1])))
+          (if-not (remove? v1) [k v1])))
       a-map)))
 
 (defn mapkeys [f a-map]
@@ -73,7 +73,7 @@
   "remove entried {k v} from the map if (p? k) is true"
   (into {} 
         (map (fn [[k v]]
-               (if-not (p k)
+               (if-not (p? k)
                  [k v]))
              a-map)))
 

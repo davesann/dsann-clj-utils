@@ -11,8 +11,6 @@
        (when-not junk-allowed
          (throw NumberFormatException e))))))
 
-
-
 (defn parse-int 
   ([s] (java.lang.Integer/parseInt s))
   ([s base]

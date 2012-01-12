@@ -128,7 +128,7 @@
 (defn update-ui! [application old-app-state new-app-state]
   (let [ui-state @(:ui-state application)
         data-path (:update-path (meta new-app-state))]
-    (u/log-str "update-ui meta" (meta new-app-state))
+    ;(u/log-str "update-ui meta" (meta new-app-state))
     ;(u/log-str "updaters" (:updaters ui-state))
     ;(u/log-str new-app-state)
     (if-let [update-fns (get-update-fns ui-state data-path)]
@@ -136,7 +136,8 @@
         ;(u/log-str "Number of update-fns:" (count update-fns))
         (doseq [{:keys [update-fn! primary-data-path]} update-fns]
           (update-fn! primary-data-path old-app-state new-app-state))
-        (u/log-str "Done Ui Update"))
+        ;(u/log-str "Done Ui Update")
+        )
       (u/log-str "No update-functions for updated path: " data-path))))
 
 
