@@ -1,5 +1,7 @@
 (ns dsann.utils.x.math)
 
+(def PI java.lang.Math/PI)
+
 (defn cos [n]
   (java.lang.Math/cos (double n)))
   
@@ -8,8 +10,6 @@
   
 (defn atan2 [x y]
   (java.lang.Math/atan2 (double x) (double y)))
-
-(def PI java.lang.Math/PI)
 
 (defn pow [n e]
   (java.lang.Math/pow n e))

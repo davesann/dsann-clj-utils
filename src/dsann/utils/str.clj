@@ -2,7 +2,11 @@
   (:require [clojure.string :as s])
   )
 
+
+;; TODO - create a Protocol Sliceable
+
 (defn slice 
+  " behaves like python slice"
   ([start string]
     (let [l (count string)
           offset (max 0 (if (< start 0) (+ start l) start))]

@@ -22,7 +22,7 @@
     (if n
       (let [f (pow 10 n)]
         (/ (round (* f x)) f))
-      (round x))))
+      (round1 x))))
     
 (defn sqrt [n]
   (. js/Math (sqrt n)))

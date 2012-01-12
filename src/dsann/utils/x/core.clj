@@ -18,24 +18,21 @@
 (defn spp [data]
   (with-out-str (p data)))
 
-(defn log [data] 
-  (log/info (spp data))
-  data)
+(defn log 
+  ([data] 
+    (log/info (spp data))
+    data)
+  ([msg data]
+    (log {:msg msg :data data})
+    data))
 
-(defn logm [msg data]
-  (log {:msg msg :data data})
-  data)
-
-
-(defn log-str [data] 
-  (log/info (print-str data))
-  data)
-
-(defn logm-str [msg data]
-  (log-str {:msg msg :data data})
-  data)
-
-
+(defn log-str 
+  ([data] 
+    (log/info (print-str data))
+    data)
+  ([msg data]
+    (log-str {:msg msg :data data})
+    data))
 
 ;; write files
 (defn write-g [print-f fname data]
