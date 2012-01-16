@@ -9,7 +9,7 @@
 (defn atan2 [x y]
   (. js/Math (atan2 x y)))
 
-(def PI (.PI js/Math))
+(def PI (.-PI js/Math))
 
 (defn pow [n e]
   (. js/Math (pow n e)))

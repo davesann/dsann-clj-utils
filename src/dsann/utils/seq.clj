@@ -9,7 +9,7 @@
     (cmp2 v1 v2)
     ...
    
-   returns if any returns none-zero  
+   returns value if any returns none-zero or ultimately 0 (same) 
   "
   [[f & fns] v1 v2]
   (if (nil? f)
@@ -49,6 +49,19 @@
   "v not in seq"
   [v a-seq]
   (not (in? v a-seq)))
+
+
+(defn starts-with [a-seq sub-seq]
+  "true if a-seq starts with the seq sub-seq"
+  (if (not (seq sub-seq))
+    true
+    (let [fs  (first a-seq)
+          fss (first sub-seq)]
+      (if (= fs fss)
+        (recur (rest a-seq) (rest sub-seq))
+        false))))
+
+
 
 ;; miscellaneous 
 (defn join-seq

@@ -42,7 +42,7 @@
   "use in (->... constructions conj if bool is false
    you can use if-not> for similar effect too"
   
-  (if (not bool)
+  (if-not bool
     (apply (partial conj a-seq) stuff)
     a-seq))
 
@@ -56,7 +56,6 @@
 (defn assoc-if-not> [m bool & kvs]
   "for (-> m ... assocs if bool is false
    you can use if-not> for similar effect too"
-  (if (not bool)
+  (if-not bool
     (apply (partial assoc m) kvs)
     m))
-
