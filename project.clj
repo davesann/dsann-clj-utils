@@ -1,4 +1,4 @@
-(defproject ds/dsann.utils "0.1.0"
+(defproject dsann.clj-utils "0.1.0"
   :description "general utilities"
                  
   :omit-default-repositories true
