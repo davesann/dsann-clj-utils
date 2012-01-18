@@ -8,5 +8,7 @@
                                            
                      ]
   :dev-dependencies [[lein-eclipse "1.0.0"]]
+  
+  :source-path "src-generated"
   )
 

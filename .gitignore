@@ -9,3 +9,5 @@ pom.xml
 /.classpath
 /.project
 /scratch
+/src-generated
+/cljs-staging
